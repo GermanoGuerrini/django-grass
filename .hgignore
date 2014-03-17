@@ -1,0 +1,3 @@
+\.pyc$
+.DS_Store
+tests/demo/fixtures/massive_initial_data.json
