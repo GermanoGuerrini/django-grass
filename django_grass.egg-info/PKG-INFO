@@ -1,0 +1,19 @@
+Metadata-Version: 1.1
+Name: django-grass
+Version: 0.1
+Summary: UNKNOWN
+Home-page: http://bitbucket.com/uoz/django-grass
+Author: Germano Guerrini
+Author-email: germano.guerrini@gmail.com
+License: UNKNOWN
+Description: In time...
+Keywords: django generic relation admin
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Django
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Utilities
