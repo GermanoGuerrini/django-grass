@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from .base import *
+from ..exceptions import WrongModelError
 
 class MultipleChoiceFieldFactoryTest(TestCase):
     
@@ -44,7 +45,12 @@ class MultipleChoiceFieldFactoryTest(TestCase):
         expected = Aisle.objects.filter(pk__in=(1, 2))
         self.assertQuerysetEqual(qs, map(repr, expected))
     
-    def test_wrong_queryset(self):
+    def test_wrong_queryset_model(self):
+        field = MultipleChoiceFieldFactory(Aisle, queryset=Warehouse.objects.filter(pk=1))
+        warehouse = Warehouse.objects.get(pk=1)
+        self.assertRaises(WrongModelError, field.get_queryset, warehouse)
+    
+    def test_wrong_queryset_class(self):
         field = MultipleChoiceFieldFactory(Aisle, queryset=Aisle.objects.get(pk=2))
         warehouse = Warehouse.objects.get(pk=1)
         self.assertRaises(Exception, field.get_queryset, warehouse)

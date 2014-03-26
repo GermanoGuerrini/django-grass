@@ -61,20 +61,19 @@ class GrassModelAdminValidator(admin.validation.ModelAdminValidator):
 
 
 class GrassAdmin(admin.ModelAdmin):
-    
+
     validator_class = GrassModelAdminValidator
-    
+
     class Media:
         js = ('admin/grass/core.js',)
-    
+
     def get_urls(self):
         urls = super(GrassAdmin, self).get_urls()
         grass_urls = patterns('',
             url(r'^selected_choices/$', self.admin_site.admin_view(self.selected_choices), name='asd'),
         )
-        print grass_urls
         return grass_urls + urls
-    
+
     def selected_choices(self, request):
         if request.is_ajax():
             content_type = request.GET.get('content_type')
@@ -88,7 +87,7 @@ class GrassAdmin(admin.ModelAdmin):
                     print e
                     # TODO List exact exceptions
                     raise Http404
-                
+
                 instance = get_object_or_404(model, pk=object_id)
                 choice_fields = node.choice_fields(instance)
                 print choice_fields
@@ -97,13 +96,20 @@ class GrassAdmin(admin.ModelAdmin):
 
 
 class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
+    """
+    Inline model admin that build a special form containing a fully configured
+    autocomplete_light search field.
+    
+    # TODO
+    The autocomplete_light selection trigger the subsequent forms (MAYBE)
+    """
     formset = GrassInlineFormSet
     template = 'admin/grass/inline.html'
     grass_nodes = []
     gfk_name = None
     gfk_label = None
     autocomplete_name = None
-    
+
     @cached_property
     def content_type_list(self):
         """
@@ -116,7 +122,7 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
         ct_field = self.model._meta.get_field(gfk_field.ct_field)
         return [i for i in ct_field.rel.to._default_manager.complex_filter(
             ct_field.rel.limit_choices_to)]
-    
+
     def get_autocomplete_choices(self):
         """
         Returns a list of querysets to be used by the autocomplete field.
@@ -133,11 +139,11 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
         """
         ct_list = self.content_type_list
         return [i.model_class()._default_manager.all() for i in ct_list]
-    
+
     @cached_property
     def autocomplete_choices(self):
         return self.get_autocomplete_choices()
-    
+
     def get_autocomplete_search_fields(self):
         """
         Returns a list of lists of fields to search in.
@@ -150,11 +156,11 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
         http://django-autocomplete-light.readthedocs.org/en/v2/generic.html
         """
         return [('name',)] * len(self.autocomplete_choices)
-    
+
     @cached_property
     def autocomplete_search_fields(self):
         return self.get_autocomplete_search_fields()
-    
+
     def _get_autocomplete_name(self):
         """
         Internally, the class uses this method to retrieve the
@@ -166,7 +172,7 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
         if self.autocomplete_name is None:
             self.autocomplete_name = '%sAutocomplete' % self.model.__name__
         return self.autocomplete_name
-    
+
     def _get_gfk_label(self):
         """
         See _get_autocomplete_name doc.
@@ -174,8 +180,8 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
         if self.gfk_label is None:
             gfk_field = get_generic_foreign_key(self.model, self.gfk_name)
             self.gfk_label = gfk_field.name
-        return self.gfk_label
-    
+        return self.gfk_label.capitalize()
+
     def get_autocomplete_class(self):
         """
         Returns a configured AutocompleteGenericBase subclass to be used in the
@@ -185,7 +191,7 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
                     (autocomplete_light.AutocompleteGenericBase,),
                     dict(choices=self.autocomplete_choices,
                          search_fields=self.autocomplete_search_fields))
-    
+
     def get_grass_form(self):
         """
         Returns a form with a single autocomplete field.
