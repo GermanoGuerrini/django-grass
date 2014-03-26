@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from grass.admin import GrassAdmin, GrassInlineModelAdmin
 from grass.forms import MultipleChoiceFieldFactory, BaseNode
+from grass.register import grass
 
 from demo.models import (
     Warehouse,
@@ -24,6 +25,7 @@ grass.register(WarehouseNode)
 
 
 class AssignmentInline(GrassInlineModelAdmin):
+    gfk_label = 'assigned to'
     model = Assignment
     grass_nodes = [
         WarehouseNode,

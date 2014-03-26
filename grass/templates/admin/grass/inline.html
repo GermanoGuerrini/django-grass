@@ -17,6 +17,9 @@
 });
 </script>
 {{ inline_admin_formset.opts.get_grass_form }}
+
+{% comment %}
+    
 <div class="inline-group" id="{{ inline_admin_formset.formset.prefix }}-group">
   <div class="tabular inline-related {% if forloop.last %}last-related{% endif %}">
 {{ inline_admin_formset.formset.management_form }}
@@ -116,3 +119,5 @@
   });
 })(django.jQuery);
 </script>
+
+{% endcomment %}
