@@ -1,52 +1,27 @@
 {% load i18n admin_static admin_modify %}{% load cycle from future %}{% load admin_urls %}
-<script type="text/javascript" charset="utf-8">
-(django.jQuery)(document).ready(function() {
-    var ajax_url = "{% url 'admin:asd' %}";
-    $('#id_generic_fk-autocomplete').yourlabsAutocomplete().input.bind(
-        'selectChoice',
-        function(e, choice, autocomplete) {
-            var selected_data = choice.data('value');
-            var data_bits = selected_data.split('-');
-            $.ajax({
-                url: "{% url 'admin:asd' %}",
-                data: {content_type: data_bits[0], object_id: data_bits[1]}
-            }).done(function(data) {
-                console.log(data)
-            });
-        });
-});
-</script>
-{{ inline_admin_formset.opts.get_grass_form }}
 
-{% comment %}
-    
+<script>
+  (django.jQuery)(document).ready(function() {
+    $('#id_{{ inline_admin_formset.opts.verbose_name }}_fk-autocomplete').grass({
+      ajax_url: '{% url "admin:asd" %}',
+    });
+  });
+</script>
+   
 <div class="inline-group" id="{{ inline_admin_formset.formset.prefix }}-group">
   <div class="tabular inline-related {% if forloop.last %}last-related{% endif %}">
-{{ inline_admin_formset.formset.management_form }}
-<fieldset class="module">
-   <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h2>
-   {{ inline_admin_formset.formset.non_form_errors }}
-   <table class="grass_inline">
-       <thead><tr>
-           <th>Content type</th>
-           <th>Search</th>
-       </tr></thead>
+  {{ inline_admin_formset.formset.management_form }}
+  <fieldset class="module">
+     <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h2>
+     {{ inline_admin_formset.formset.non_form_errors }}
 
-       <tbody>
-           <tr><td colspan="2">{{ inline_admin_form.form.non_field_errors }}</td></tr>
-           <tr class="form-row"><td{% if field.field.name %} class="field-{{ field.field.name }}"{% endif %}>
-           {% if field.is_readonly %}
-               <p>{{ field.contents|linebreaksbr }}</p>
-           {% else %}
-               {{ field.field.errors.as_ul }}
-               {{ field.field }}
-           {% endif %}
-           </td></tr>
-       </tbody>
+    <table class="grass_inline">
+      <tbody>
+        {{ inline_admin_formset.opts.get_grass_form }}
+        <div id="{{ inline_admin_formset.formset.prefix }}-grass-fields"></div>
+      </tbody>
+    </table>
 
-   </table>
-
-   
    <table>
      <thead><tr>
      {% for field in inline_admin_formset.fields %}
@@ -119,5 +94,3 @@
   });
 })(django.jQuery);
 </script>
-
-{% endcomment %}
