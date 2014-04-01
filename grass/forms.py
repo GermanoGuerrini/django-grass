@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 
 from .exceptions import WrongModelError
@@ -57,8 +58,11 @@ class MultipleChoiceFieldFactory(object):
         self.field_class = field_class
 
     def __call__(self, instance):
+        content_type = ContentType.objects.get_for_model(self.model_class)
         queryset = self.get_queryset(instance)
-        return self.field_class(queryset=queryset)
+        field = self.field_class(queryset=queryset)
+        field.widget.attrs.update({'data-grass-ct': content_type.pk})
+        return field
 
     def _get_fk_name(self, instance):
         opts = instance._meta

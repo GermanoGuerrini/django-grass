@@ -3,7 +3,7 @@ from django.conf.urls import patterns, url
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, HttpResponseForbidden, Http404
 from django.db.models.fields import FieldDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
@@ -90,8 +90,10 @@ class GrassAdmin(admin.ModelAdmin):
 
                 instance = get_object_or_404(model, pk=object_id)
                 choice_fields = node.choice_fields(instance)
-                print choice_fields
-            return HttpResponse('grass')
+                response = ''.join([field.widget.render('nome', None)
+                                    for field in choice_fields])
+                return HttpResponse(response)
+            return HttpResponseForbidden()
         raise Http404
 
 
@@ -109,6 +111,7 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
     gfk_name = None
     gfk_label = None
     autocomplete_name = None
+    extra = 0
 
     @cached_property
     def content_type_list(self):
@@ -196,9 +199,10 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
         """
         Returns a form with a single autocomplete field.
         """
+        generic_fk_name = '%s_fk' % self.model.__name__.lower()
         autocomplete_light.register(self.get_autocomplete_class())
-        return type('GrassForm', (forms.Form,),
-                    dict(generic_fk=autocomplete_light.GenericModelChoiceField(
-                             self._get_autocomplete_name(),
-                         label=self._get_gfk_label())))()
+        return type('GrassForm', (forms.Form,), {
+                    generic_fk_name: autocomplete_light.GenericModelChoiceField(
+                        self._get_autocomplete_name(),
+                        label=self._get_gfk_label())})()
 
