@@ -16,7 +16,7 @@ from demo.models import (
 class WarehouseNode(BaseNode):
     model = Warehouse
     fields = (
-        MultipleChoiceFieldFactory(Aisle), 
+        MultipleChoiceFieldFactory(Aisle),
         MultipleChoiceFieldFactory(Shelf, 'aisle__warehouse'),
         MultipleChoiceFieldFactory(Item, queryset=Item.objects.filter(pk__in=(1,2,3)))
     )

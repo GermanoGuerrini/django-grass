@@ -2,7 +2,7 @@
 
 <script>
   (django.jQuery)(document).ready(function() {
-    $('#id_{{ inline_admin_formset.opts.verbose_name }}_fk-autocomplete').grass({
+    $('#id_{{ inline_admin_formset.opts.get_form_gfk_name }}-autocomplete').grass({
       ajax_url: '{% url "admin:asd" %}',
     });
   });

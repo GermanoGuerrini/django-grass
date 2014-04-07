@@ -1,4 +1,5 @@
 from django import forms
+from django.forms.forms import BoundField
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 
@@ -15,8 +16,13 @@ class BaseNode(object):
         raise NotImplementedError
 
     def choice_fields(self, instance):
-        # TODO Un po' brutto. Sarebbe bello un iteratore
-        return [i(instance) for i in self.fields]
+        form = forms.Form()
+        for field_class in self.fields:
+            model = field_class.model_class
+            content_type = ContentType.objects.get_for_model(model)
+            field = field_class(instance)
+            field.widget.attrs.update({'data-grass-ct': content_type.pk})
+            yield BoundField(form, field, model._meta.verbose_name)
 
 
 class MultipleChoiceFieldFactory(object):
@@ -48,7 +54,8 @@ class MultipleChoiceFieldFactory(object):
     lookup filter.
     """
     def __init__(self, model_class, instance_lookup=None, filter_lookup=None,
-        exclude_lookup=None, queryset=None, field_class=forms.ModelMultipleChoiceField):
+        exclude_lookup=None, queryset=None, field_class=forms.ModelMultipleChoiceField,
+        label_from_instance=None):
         # TODO Decidere se passare una classe per il field oppure una per il widget
         self.model_class = model_class
         self.instance_lookup = instance_lookup
@@ -56,13 +63,19 @@ class MultipleChoiceFieldFactory(object):
         self.exclude_lookup = exclude_lookup or {}
         self.queryset = queryset
         self.field_class = field_class
+        self.label_from_instance = label_from_instance
 
     def __call__(self, instance):
-        content_type = ContentType.objects.get_for_model(self.model_class)
         queryset = self.get_queryset(instance)
-        field = self.field_class(queryset=queryset)
-        field.widget.attrs.update({'data-grass-ct': content_type.pk})
+        field = self._get_field(queryset=queryset)
         return field
+
+    def _get_field(self, *args, **kwargs):
+        field_class = type('GrassMultipleChoiceField', (self.field_class,), {})
+        if self.label_from_instance is not None:
+            wrapper = lambda _, obj: self.label_from_instance(obj)
+            field_class.label_from_instance = wrapper
+        return field_class(*args, **kwargs)
 
     def _get_fk_name(self, instance):
         opts = instance._meta

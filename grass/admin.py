@@ -3,9 +3,10 @@ from django.conf.urls import patterns, url
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
-from django.http import HttpResponse, HttpResponseForbidden, Http404
+from django.http import HttpResponseForbidden, Http404
 from django.db.models.fields import FieldDoesNotExist
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
+from django.template import RequestContext
 from django.utils.functional import cached_property
 
 import autocomplete_light
@@ -70,7 +71,8 @@ class GrassAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super(GrassAdmin, self).get_urls()
         grass_urls = patterns('',
-            url(r'^selected_choices/$', self.admin_site.admin_view(self.selected_choices), name='asd'),
+            url(r'^selected_choices/$',
+                self.admin_site.admin_view(self.selected_choices), name='asd'),
         )
         return grass_urls + urls
 
@@ -90,9 +92,9 @@ class GrassAdmin(admin.ModelAdmin):
 
                 instance = get_object_or_404(model, pk=object_id)
                 choice_fields = node.choice_fields(instance)
-                response = ''.join([field.widget.render('nome', None)
-                                    for field in choice_fields])
-                return HttpResponse(response)
+                return render_to_response('admin/grass/results.html',
+                                          {'fields': choice_fields},
+                                          RequestContext(request))
             return HttpResponseForbidden()
         raise Http404
 
@@ -195,11 +197,17 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
                     dict(choices=self.autocomplete_choices,
                          search_fields=self.autocomplete_search_fields))
 
+    def get_form_gfk_name(self):
+        """
+        Returns the name for the autocomplete field used in the form.
+        """
+        return '%s_fk' % self.model.__name__.lower()
+
     def get_grass_form(self):
         """
         Returns a form with a single autocomplete field.
         """
-        generic_fk_name = '%s_fk' % self.model.__name__.lower()
+        generic_fk_name = self.get_form_gfk_name()
         autocomplete_light.register(self.get_autocomplete_class())
         return type('GrassForm', (forms.Form,), {
                     generic_fk_name: autocomplete_light.GenericModelChoiceField(
