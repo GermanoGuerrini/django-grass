@@ -115,6 +115,13 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
     autocomplete_name = None
     extra = 0
 
+    def __init__(self, *args, **kwargs):
+        """
+        Registers the autocomplete class at instantiation time.
+        """
+        super(GrassInlineModelAdmin, self).__init__(*args, **kwargs)
+        autocomplete_light.register(self.model, self.get_autocomplete_class())
+
     @cached_property
     def content_type_list(self):
         """
@@ -208,7 +215,6 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
         Returns a form with a single autocomplete field.
         """
         generic_fk_name = self.get_form_gfk_name()
-        autocomplete_light.register(self.model, self.get_autocomplete_class())
         return type('GrassForm', (forms.Form,), {
                     generic_fk_name: autocomplete_light.GenericModelChoiceField(
                         self._get_autocomplete_name(),
