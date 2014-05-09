@@ -7,7 +7,6 @@ from django.http import HttpResponseForbidden, Http404
 from django.db.models.fields import FieldDoesNotExist
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-from django.utils.functional import cached_property
 
 import autocomplete_light
 
@@ -68,6 +67,12 @@ class GrassAdmin(admin.ModelAdmin):
     class Media:
         js = ('admin/grass/core.js',)
 
+    def __init__(self, *args, **kwargs):
+        super(GrassAdmin, self).__init__(*args, **kwargs)
+        for inline in self.inlines:
+            if issubclass(inline, GrassInlineModelAdmin):
+                autocomplete_light.register(inline.get_autocomplete_class())
+
     def get_urls(self):
         urls = super(GrassAdmin, self).get_urls()
         grass_urls = patterns('',
@@ -115,27 +120,21 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
     autocomplete_name = None
     extra = 0
 
-    def __init__(self, *args, **kwargs):
-        """
-        Registers the autocomplete class at instantiation time.
-        """
-        super(GrassInlineModelAdmin, self).__init__(*args, **kwargs)
-        autocomplete_light.register(self.get_autocomplete_class())
-
-    @cached_property
-    def content_type_list(self):
+    @classmethod
+    def get_content_type_list(cls):
         """
         Returns a list of all the content types that can be associated to the
         model of this class through the generic foreign key field.
         If the content type field has not been limited, it will returns all the
         content types currently registered.
         """
-        gfk_field = get_generic_foreign_key(self.model, self.gfk_name)
-        ct_field = self.model._meta.get_field(gfk_field.ct_field)
+        gfk_field = get_generic_foreign_key(cls.model, cls.gfk_name)
+        ct_field = cls.model._meta.get_field(gfk_field.ct_field)
         return [i for i in ct_field.rel.to._default_manager.complex_filter(
             ct_field.rel.limit_choices_to)]
 
-    def get_autocomplete_choices(self):
+    @classmethod
+    def get_autocomplete_choices(cls):
         """
         Returns a list of querysets to be used by the autocomplete field.
         By default it returns all the objects for each of the content type of
@@ -149,14 +148,11 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
         Further explanation:
         http://django-autocomplete-light.readthedocs.org/en/v2/generic.html
         """
-        ct_list = self.content_type_list
+        ct_list = cls.get_content_type_list()
         return [i.model_class()._default_manager.all() for i in ct_list]
 
-    @cached_property
-    def autocomplete_choices(self):
-        return self.get_autocomplete_choices()
-
-    def get_autocomplete_search_fields(self):
+    @classmethod
+    def get_autocomplete_search_fields(cls):
         """
         Returns a list of lists of fields to search in.
         The first list of fields will be used for the first queryset in choices
@@ -167,13 +163,10 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
         Further explanation:
         http://django-autocomplete-light.readthedocs.org/en/v2/generic.html
         """
-        return [('name',)] * len(self.autocomplete_choices)
+        return [('name',)] * len(cls.get_autocomplete_choices())
 
-    @cached_property
-    def autocomplete_search_fields(self):
-        return self.get_autocomplete_search_fields()
-
-    def _get_autocomplete_name(self):
+    @classmethod
+    def _get_autocomplete_name(cls):
         """
         Internally, the class uses this method to retrieve the
         `autocomplete_name` so that we can set a sensible default.
@@ -181,28 +174,30 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
         django class with all its metaclasses is a pain in the butt and not
         future proof.
         """
-        if self.autocomplete_name is None:
-            self.autocomplete_name = '%sAutocomplete' % self.model.__name__
-        return self.autocomplete_name
+        if cls.autocomplete_name is None:
+            cls.autocomplete_name = '%sAutocomplete' % cls.model.__name__
+        return cls.autocomplete_name
 
-    def _get_gfk_label(self):
+    @classmethod
+    def _get_gfk_label(cls):
         """
         See _get_autocomplete_name doc.
         """
-        if self.gfk_label is None:
-            gfk_field = get_generic_foreign_key(self.model, self.gfk_name)
-            self.gfk_label = gfk_field.name
-        return self.gfk_label.capitalize()
+        if cls.gfk_label is None:
+            gfk_field = get_generic_foreign_key(cls.model, cls.gfk_name)
+            cls.gfk_label = gfk_field.name
+        return cls.gfk_label.capitalize()
 
-    def get_autocomplete_class(self):
+    @classmethod
+    def get_autocomplete_class(cls):
         """
         Returns a configured AutocompleteGenericBase subclass to be used in the
         generic model choice field of the grass form.
         """
-        return type(self._get_autocomplete_name(),
+        return type(cls._get_autocomplete_name(),
                     (autocomplete_light.AutocompleteGenericBase,),
-                    dict(choices=self.autocomplete_choices,
-                         search_fields=self.autocomplete_search_fields))
+                    dict(choices=cls.get_autocomplete_choices(),
+                         search_fields=cls.get_autocomplete_search_fields()))
 
     def get_form_gfk_name(self):
         """
