@@ -120,7 +120,7 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
         Registers the autocomplete class at instantiation time.
         """
         super(GrassInlineModelAdmin, self).__init__(*args, **kwargs)
-        autocomplete_light.register(self.model, self.get_autocomplete_class())
+        autocomplete_light.register(self.get_autocomplete_class())
 
     @cached_property
     def content_type_list(self):
