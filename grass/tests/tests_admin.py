@@ -77,18 +77,18 @@ class AdminTest(TestCase):
         self.assertIsNone(MultipleGFKWithGFKNameWorkerAdmin.validate(Worker))
     
     def test_inline_content_type_list(self):
-        inline = AssignmentInline(0, 0)
+        inline = AssignmentInline
         model_list = (Aisle, Item, Shelf, Warehouse)
         expected = [ContentType.objects.get_for_model(i) for i in model_list]
-        self.assertEqual(inline.content_type_list, expected)
+        self.assertEqual(inline.get_content_type_list(), expected)
     
     def test_inline_all_content_type_list(self):
-        inline = MultipleGFKWithGFKNameAssignmentInline(0, 0)
-        expected = set(inline.content_type_list)
+        inline = MultipleGFKWithGFKNameAssignmentInline
+        expected = set(inline.get_content_type_list())
         self.assertEqual(expected, set(ContentType.objects.all()))
     
     def test_default_autocomplete_choices(self):
-        inline = AssignmentInline(0, 0)
+        inline = AssignmentInline
         model_list = (Aisle, Item, Shelf, Warehouse)
         expected = [model._default_manager.all() for model in model_list]
         choices = inline.get_autocomplete_choices()
@@ -96,7 +96,7 @@ class AdminTest(TestCase):
             self.assertQuerysetEqual(choice, map(repr, expected[idx]))
     
     def test_autocomplete_choices_all_content_types(self):
-        inline = MultipleGFKWithGFKNameAssignmentInline(0, 0)
+        inline = MultipleGFKWithGFKNameAssignmentInline
         ct_list = ContentType.objects.all()
         expected = [i.model_class()._default_manager.all() for i in ct_list]
         choices = inline.get_autocomplete_choices()
@@ -104,12 +104,12 @@ class AdminTest(TestCase):
             self.assertQuerysetEqual(choice, map(repr, expected[idx]))
     
     def test_default_autocomplete_search_fields(self):
-        inline = AssignmentInline(0, 0)
+        inline = AssignmentInline
         expected = [('name',)] * 4
         self.assertEqual(expected, inline.get_autocomplete_search_fields())
     
     def test_autocomplete_search_fields_content_types(self):
-        inline = MultipleGFKWithGFKNameAssignmentInline(0, 0)
+        inline = MultipleGFKWithGFKNameAssignmentInline
         ct_list = ContentType.objects.all()
         expected = [('name',)] * len(ct_list)
         self.assertEqual(expected, inline.get_autocomplete_search_fields())
