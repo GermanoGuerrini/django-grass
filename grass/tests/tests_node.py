@@ -7,4 +7,4 @@ class NodeTest(TestCase):
         node = WarehouseNode()
         warehouse = Warehouse.objects.get(pk=1)
         choice_fields = node.choice_fields(warehouse)
-        self.assertEqual(len(choice_fields), 3)
+        self.assertEqual(len([c for c in choice_fields]), 3)

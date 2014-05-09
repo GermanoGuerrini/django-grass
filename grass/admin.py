@@ -208,7 +208,7 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
         Returns a form with a single autocomplete field.
         """
         generic_fk_name = self.get_form_gfk_name()
-        autocomplete_light.register(self.get_autocomplete_class())
+        autocomplete_light.register(self.model, self.get_autocomplete_class())
         return type('GrassForm', (forms.Form,), {
                     generic_fk_name: autocomplete_light.GenericModelChoiceField(
                         self._get_autocomplete_name(),
