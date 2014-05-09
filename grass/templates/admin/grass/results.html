@@ -1,0 +1,8 @@
+<table>
+    <tr>
+        {% for field in fields %}
+            <th>{{ field.label_tag }}</th>
+            <td>{{ field }}</td>
+        {% endfor %}
+    </tr>
+</table>

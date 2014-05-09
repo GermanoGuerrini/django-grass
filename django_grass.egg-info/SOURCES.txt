@@ -15,3 +15,4 @@ grass/utils.py
 grass/views.py
 grass/static/admin/grass/core.js
 grass/templates/admin/grass/inline.html
+grass/templates/admin/grass/results.html
