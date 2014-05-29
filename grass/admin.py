@@ -11,6 +11,7 @@ from django.template import RequestContext
 import autocomplete_light
 
 from .exceptions import GenericForeignKeyNotFound, MultipleGenericForeignKeys
+from .generic import GrassAutocompleteGenericBase
 from .formsets import GrassInlineFormSet
 from .register import grass
 from .utils import get_generic_foreign_key
@@ -163,7 +164,7 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
         Further explanation:
         http://django-autocomplete-light.readthedocs.org/en/v2/generic.html
         """
-        return [('name',)] * len(cls.get_autocomplete_choices())
+        return [('^name',)] * len(cls.get_autocomplete_choices())
 
     @classmethod
     def _get_autocomplete_name(cls):
@@ -191,11 +192,11 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
     @classmethod
     def get_autocomplete_class(cls):
         """
-        Returns a configured AutocompleteGenericBase subclass to be used in the
-        generic model choice field of the grass form.
+        Returns a configured GrassAutocompleteGenericBase subclass to be used in
+        the generic model choice field of the grass form.
         """
         return type(cls._get_autocomplete_name(),
-                    (autocomplete_light.AutocompleteGenericBase,),
+                    (GrassAutocompleteGenericBase,),
                     dict(choices=cls.get_autocomplete_choices(),
                          search_fields=cls.get_autocomplete_search_fields()))
 
