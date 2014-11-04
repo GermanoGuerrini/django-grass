@@ -105,11 +105,11 @@ class AdminTest(TestCase):
     
     def test_default_autocomplete_search_fields(self):
         inline = AssignmentInline
-        expected = [('name',)] * 4
+        expected = [('^name',)] * 4
         self.assertEqual(expected, inline.get_autocomplete_search_fields())
     
     def test_autocomplete_search_fields_content_types(self):
         inline = MultipleGFKWithGFKNameAssignmentInline
         ct_list = ContentType.objects.all()
-        expected = [('name',)] * len(ct_list)
+        expected = [('^name',)] * len(ct_list)
         self.assertEqual(expected, inline.get_autocomplete_search_fields())
