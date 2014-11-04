@@ -27,9 +27,6 @@ grass.register(WarehouseNode)
 class AssignmentInline(GrassInlineModelAdmin):
     gfk_label = 'assigned to'
     model = Assignment
-    grass_nodes = [
-        WarehouseNode,
-    ]
 
 
 class WorkerAdmin(GrassAdmin):
