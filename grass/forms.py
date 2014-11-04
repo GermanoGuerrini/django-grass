@@ -12,9 +12,6 @@ class BaseNode(object):
     model = None
     fields = ()
 
-    def autocomplete(self, query):
-        raise NotImplementedError
-
     def choice_fields(self, instance):
         form = forms.Form()
         for field_class in self.fields:
