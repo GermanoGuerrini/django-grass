@@ -37,6 +37,9 @@ class GrassModelAdminValidator(admin.validation.ModelAdminValidator):
         """
         Checks that all GrassInlineModelAdmin inlines refer to a model with a
         properly configured GenericForeignKey field.
+        Furthermore, it checks that the fields expected by
+        AutocompleteGenericBase (choices and search_fields) are at least the
+        same number.
         """
         for idx, inline in enumerate(cls.inlines):
             if issubclass(inline, GrassInlineModelAdmin):
@@ -59,6 +62,12 @@ class GrassModelAdminValidator(admin.validation.ModelAdminValidator):
                         "You must specify a gfk_name value to avoid any "
                         "ambiguity."
                         % (cls.__name__, idx, inline.model))
+                choices_count = len(inline.get_autocomplete_choices())
+                search_fields_count = len(inline.get_autocomplete_search_fields())
+                if choices_count != search_fields_count:
+                    raise ImproperlyConfigured("%s.inlines[%d] "
+                        "defines %s choices but %s search fields are given."
+                        % (cls.__name__, idx, choices_count, search_fields_count))
 
 
 class GrassAdmin(admin.ModelAdmin):
@@ -115,7 +124,6 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
     """
     formset = GrassInlineFormSet
     template = 'admin/grass/inline.html'
-    grass_nodes = []
     gfk_name = None
     gfk_label = None
     autocomplete_name = None
@@ -192,8 +200,8 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
     @classmethod
     def get_autocomplete_class(cls):
         """
-        Returns a configured GrassAutocompleteGenericBase subclass to be used in
-        the generic model choice field of the grass form.
+        Returns a configured GrassAutocompleteGenericBase subclass to be used
+        in the generic model choice field of the grass form.
         """
         return type(cls._get_autocomplete_name(),
                     (GrassAutocompleteGenericBase,),

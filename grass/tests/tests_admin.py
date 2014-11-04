@@ -7,14 +7,25 @@ from .base import *
 
 class AssignmentInline(GrassInlineModelAdmin):
     model = Assignment
-    grass_nodes = [
-        WarehouseNode,
-    ]
 
 
 class WorkerAdmin(GrassAdmin):
     inlines = [
         AssignmentInline,
+    ]
+
+
+class ImproperlyConfiguredAssignmentInline(GrassInlineModelAdmin):
+    model = Assignment
+
+    @classmethod
+    def get_autocomplete_search_fields(cls):
+        return [('^name',)] * 5 # Four expected
+
+
+class ImproperlyConfiguredWorkerAdmin(GrassAdmin):
+    inlines = [
+        ImproperlyConfiguredAssignmentInline,
     ]
 
 
@@ -72,6 +83,9 @@ class AdminTest(TestCase):
     
     def test_wrong_gfk_name_admin(self):
         self.assertRaises(ImproperlyConfigured, GFKWrongNameGFKWorkerAdmin.validate, Worker)
+    
+    def test_improperly_configured_admin(self):
+        self.assertRaises(ImproperlyConfigured, ImproperlyConfiguredWorkerAdmin.validate, Worker)
     
     def test_multiple_gfk_with_gfk_name_admin(self):
         self.assertIsNone(MultipleGFKWithGFKNameWorkerAdmin.validate(Worker))
