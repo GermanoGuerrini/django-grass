@@ -3,8 +3,8 @@ from django.forms.forms import BoundField
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 
-from .exceptions import WrongModelError
-from .utils import get_foreign_key
+from grass.exceptions import WrongModelError
+from grass.utils import get_foreign_key
 
 
 class BaseNode(object):
@@ -28,7 +28,7 @@ class MultipleChoiceFieldFactory(object):
     to a django.forms.ModelMultipleChoiceField class or subclass, starting from
     an instance of a model that has a foreign key to the model of the queryset
     or is part of a chain or related models.
-    
+
     It accepts the following parameters:
     - model_class: the model class to build the queryset upon
     - instance_lookup: in case of multiple foreign keys from the instance model
@@ -46,7 +46,7 @@ class MultipleChoiceFieldFactory(object):
     - field_class: the class of the field to build. By default it is a
                    django.forms.ModelMultipleChoiceField class, but can be any
                    class as long as it accepts a queryset parameter
-    
+
     By default, the queryset attached to the field is a simple foreign key
     lookup filter.
     """

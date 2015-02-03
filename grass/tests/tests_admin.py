@@ -2,8 +2,10 @@ from django.test import TestCase
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 
-from ..admin import GrassAdmin, GrassInlineModelAdmin
-from .base import *
+from grass.admin import GrassAdmin, GrassInlineModelAdmin
+from grass.tests.base import *
+from grass.tests.models import *
+
 
 class AssignmentInline(GrassInlineModelAdmin):
     model = Assignment
@@ -72,35 +74,38 @@ class GFKWrongNameGFKWorkerAdmin(GrassAdmin):
 
 
 class AdminTest(TestCase):
+
+    fixtures = ['testing_data.json']
+
     def test_admin(self):
         self.assertIsNone(WorkerAdmin.validate(Worker))
-    
+
     def test_no_gfk__admin(self):
         self.assertRaises(ImproperlyConfigured, NoGFKWorkerAdmin.validate, Worker)
-    
+
     def test_multiple_gfk_admin(self):
         self.assertRaises(ImproperlyConfigured, MultipleGFKWorkerAdmin.validate, Worker)
-    
+
     def test_wrong_gfk_name_admin(self):
         self.assertRaises(ImproperlyConfigured, GFKWrongNameGFKWorkerAdmin.validate, Worker)
-    
+
     def test_improperly_configured_admin(self):
         self.assertRaises(ImproperlyConfigured, ImproperlyConfiguredWorkerAdmin.validate, Worker)
-    
+
     def test_multiple_gfk_with_gfk_name_admin(self):
         self.assertIsNone(MultipleGFKWithGFKNameWorkerAdmin.validate(Worker))
-    
+
     def test_inline_content_type_list(self):
         inline = AssignmentInline
         model_list = (Aisle, Item, Shelf, Warehouse)
         expected = [ContentType.objects.get_for_model(i) for i in model_list]
         self.assertEqual(inline.get_content_type_list(), expected)
-    
+
     def test_inline_all_content_type_list(self):
         inline = MultipleGFKWithGFKNameAssignmentInline
         expected = set(inline.get_content_type_list())
         self.assertEqual(expected, set(ContentType.objects.all()))
-    
+
     def test_default_autocomplete_choices(self):
         inline = AssignmentInline
         model_list = (Aisle, Item, Shelf, Warehouse)
@@ -108,7 +113,7 @@ class AdminTest(TestCase):
         choices = inline.get_autocomplete_choices()
         for idx, choice in enumerate(choices):
             self.assertQuerysetEqual(choice, map(repr, expected[idx]))
-    
+
     def test_autocomplete_choices_all_content_types(self):
         inline = MultipleGFKWithGFKNameAssignmentInline
         ct_list = ContentType.objects.all()
@@ -116,12 +121,12 @@ class AdminTest(TestCase):
         choices = inline.get_autocomplete_choices()
         for idx, choice in enumerate(choices):
             self.assertQuerysetEqual(choice, map(repr, expected[idx]))
-    
+
     def test_default_autocomplete_search_fields(self):
         inline = AssignmentInline
         expected = [('^name',)] * 4
         self.assertEqual(expected, inline.get_autocomplete_search_fields())
-    
+
     def test_autocomplete_search_fields_content_types(self):
         inline = MultipleGFKWithGFKNameAssignmentInline
         ct_list = ContentType.objects.all()

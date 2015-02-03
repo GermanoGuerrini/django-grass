@@ -2,7 +2,7 @@ from django.utils.text import slugify
 
 import autocomplete_light
 
-from . import settings
+from grass import settings
 
 
 class GrassAutocompleteGenericBase(autocomplete_light.AutocompleteGenericBase):

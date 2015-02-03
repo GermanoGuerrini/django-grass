@@ -10,11 +10,11 @@ from django.template import RequestContext
 
 import autocomplete_light
 
-from .exceptions import GenericForeignKeyNotFound, MultipleGenericForeignKeys
-from .generic import GrassAutocompleteGenericBase
-from .formsets import GrassInlineFormSet
-from .register import grass
-from .utils import get_generic_foreign_key
+from grass.exceptions import GenericForeignKeyNotFound, MultipleGenericForeignKeys
+from grass.generic import GrassAutocompleteGenericBase
+from grass.formsets import GrassInlineFormSet
+from grass.register import grass
+from grass.utils import get_generic_foreign_key
 
 
 # This ominous monkey patching is due to the impossibility to subclass
@@ -118,7 +118,7 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
     """
     Inline model admin that build a special form containing a fully configured
     autocomplete_light search field.
-    
+
     # TODO
     The autocomplete_light selection trigger the subsequent forms (MAYBE)
     """
@@ -223,4 +223,3 @@ class GrassInlineModelAdmin(admin.options.InlineModelAdmin):
                     generic_fk_name: autocomplete_light.GenericModelChoiceField(
                         self._get_autocomplete_name(),
                         label=self._get_gfk_label())})()
-

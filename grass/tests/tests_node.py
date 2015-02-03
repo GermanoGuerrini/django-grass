@@ -1,8 +1,11 @@
 from django.test import TestCase
 
-from .base import *
+from grass.tests.base import *
 
 class NodeTest(TestCase):
+
+    fixtures = ['testing_data.json']
+
     def test_node(self):
         node = WarehouseNode()
         warehouse = Warehouse.objects.get(pk=1)

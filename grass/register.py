@@ -1,4 +1,4 @@
-from .exceptions import ModelNotRegistered, ModelAlreadyRegistered
+from grass.exceptions import ModelNotRegistered, ModelAlreadyRegistered
 
 class Register(object):
     """
@@ -23,7 +23,7 @@ class Register(object):
         """
         if node_class.model in self._registry:
             raise ModelAlreadyRegistered(
-                "The model %s is already registered." % 
+                "The model %s is already registered." %
                 node_class.model._meta.module_name)
         self._registry[node_class.model] = node_class()
 

@@ -1,7 +1,7 @@
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.db.models.fields import FieldDoesNotExist
 
-from .exceptions import GenericForeignKeyNotFound, MultipleGenericForeignKeys
+from grass.exceptions import GenericForeignKeyNotFound, MultipleGenericForeignKeys
 
 def get_generic_foreign_key(model, gfk_name=None):
     opts = model._meta
