@@ -1,11 +1,6 @@
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
-from django.db import models
-
+from grass.admin import GrassAdmin, GrassInlineModelAdmin
 from grass.forms import BaseNode, MultipleChoiceFieldFactory
-
 from grass.tests.models import (
-    Worker,
     Item,
     Aisle,
     Shelf,
@@ -33,3 +28,13 @@ class WarehouseNode(BaseNode):
         MultipleChoiceFieldFactory(Shelf, 'aisle__warehouse'),
         MultipleChoiceFieldFactory(Item, queryset=Item.objects.filter(pk__in=(1,2,3)))
     )
+
+
+class AssignmentInline(GrassInlineModelAdmin):
+    model = Assignment
+
+
+class WorkerAdmin(GrassAdmin):
+    inlines = [
+        AssignmentInline,
+    ]

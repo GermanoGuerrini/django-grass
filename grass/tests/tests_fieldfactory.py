@@ -1,7 +1,12 @@
 from django.test import TestCase
 
-from grass.tests.base import *
 from grass.exceptions import WrongModelError
+from grass.tests.base import MultipleChoiceFieldFactory
+from grass.tests.models import (
+    Aisle,
+    Shelf,
+    Warehouse,
+)
 
 class MultipleChoiceFieldFactoryTest(TestCase):
 

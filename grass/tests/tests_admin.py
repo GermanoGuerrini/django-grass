@@ -3,18 +3,20 @@ from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 
 from grass.admin import GrassAdmin, GrassInlineModelAdmin
-from grass.tests.base import *
-from grass.tests.models import *
-
-
-class AssignmentInline(GrassInlineModelAdmin):
-    model = Assignment
-
-
-class WorkerAdmin(GrassAdmin):
-    inlines = [
-        AssignmentInline,
-    ]
+from grass.tests.base import (
+    AssignmentInline,
+    WorkerAdmin,
+)
+from grass.tests.models import (
+    Aisle,
+    Assignment,
+    Item,
+    Shelf,
+    Warehouse,
+    Worker,
+    NoGFKAssignment,
+    MultipleGFKAssignment,
+)
 
 
 class ImproperlyConfiguredAssignmentInline(GrassInlineModelAdmin):

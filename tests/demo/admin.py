@@ -1,10 +1,8 @@
 from django.contrib import admin
 
-from grass.admin import GrassAdmin, GrassInlineModelAdmin
-from grass.forms import MultipleChoiceFieldFactory, BaseNode
 from grass.register import grass
-
-from demo.models import (
+from grass.tests.base import WorkerAdmin, WarehouseNode
+from grass.tests.models import (
     Warehouse,
     Aisle,
     Shelf,
@@ -13,26 +11,7 @@ from demo.models import (
     Assignment,
 )
 
-class WarehouseNode(BaseNode):
-    model = Warehouse
-    fields = (
-        MultipleChoiceFieldFactory(Aisle),
-        MultipleChoiceFieldFactory(Shelf, 'aisle__warehouse'),
-        MultipleChoiceFieldFactory(Item, queryset=Item.objects.filter(pk__in=(1,2,3)))
-    )
-
 grass.register(WarehouseNode)
-
-
-class AssignmentInline(GrassInlineModelAdmin):
-    gfk_label = 'assigned to'
-    model = Assignment
-
-
-class WorkerAdmin(GrassAdmin):
-    inlines = [
-        AssignmentInline,
-    ]
 
 admin.site.register(Worker, WorkerAdmin)
 

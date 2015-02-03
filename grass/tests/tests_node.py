@@ -1,6 +1,7 @@
 from django.test import TestCase
 
-from grass.tests.base import *
+from grass.tests.base import WarehouseNode
+from grass.tests.models import Warehouse
 
 class NodeTest(TestCase):
 

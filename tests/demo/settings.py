@@ -138,6 +138,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'grass',
+    'grass.tests',
     'demo',
     'autocomplete_light'
 )
